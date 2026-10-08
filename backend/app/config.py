@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     nim_max_retries: int = 2
     environment: str = "development"
     api_secret_key: str = ""
+    # Explicit local-development opt-in; ignored outside development.
+    allow_unauthenticated_development: bool = False
     # Comma-separated list of browser origins allowed to call the API.
     # Wildcards are intentionally avoided: a specific allow-list is required
     # for credentialed CORS requests to work at all.
