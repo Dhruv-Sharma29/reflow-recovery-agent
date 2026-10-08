@@ -9,16 +9,14 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 def get_api_key(api_key_header: str | None = Security(api_key_header)) -> str | None:
-    """Validate the API key from the request header.
-
-    When ``API_SECRET_KEY`` is not configured (empty string), authentication
-    is skipped entirely so the dashboard works out of the box for local
-    development.  When a key **is** set, every request must include a
-    matching ``X-API-Key`` header.
-    """
+    """Require a key, except for explicitly enabled local development."""
     if not settings.api_secret_key:
-        # No key configured → auth is opt-in, allow the request.
-        return None
+        if settings.environment == "development" and settings.allow_unauthenticated_development:
+            return None
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Dashboard authentication is not configured",
+        )
 
     if not api_key_header:
         raise HTTPException(
@@ -26,7 +24,7 @@ def get_api_key(api_key_header: str | None = Security(api_key_header)) -> str | 
             detail="Missing X-API-Key header",
         )
 
-    if not hmac.compare_digest(api_key_header, settings.api_secret_key):
+    if not hmac.compare_digest(api_key_header.encode("utf-8"), settings.api_secret_key.encode("utf-8")):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",

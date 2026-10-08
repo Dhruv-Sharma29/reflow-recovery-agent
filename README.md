@@ -24,7 +24,7 @@ limit, or overturn a refusal.
 
 ## Demo
 
-![Reflow recovery console](docs/demo.gif)
+![Reflow recovery console](docs/demo.webp)
 
 The fastest browser demo is **Run guided demo** on the Overview, which sends one
 below-cap insufficient-funds event through the complete pipeline and logs what
@@ -49,7 +49,7 @@ a deterministic, policy-grounded fallback.
 ## API
 
 `GET /health` is public. All `/api/dashboard/*` routes require an `X-API-Key`
-header matching `API_SECRET_KEY`, unless that setting is empty.
+header matching `API_SECRET_KEY`, with access refused if the setting is empty. Only an explicit `ALLOW_UNAUTHENTICATED_DEVELOPMENT=true` together with `ENVIRONMENT=development` permits a local unauthenticated demo.
 
 ### Recovery
 
@@ -248,7 +248,8 @@ the ones that change behaviour most:
 | `EXECUTOR_MODE` | `mock` (default, offline) or `razorpay_test` |
 | `AUTO_RECOVERY_AMOUNT_LIMIT` | Paise. Above this, escalate — never auto-retry. Default `500000` (₹5,000) |
 | `MODEL_ACTION_CHOICE_MIN_CONFIDENCE` | How sure the advisor must be to beat the policy default. Default `0.7`; raise toward 1.0 for pure deterministic policy |
-| `API_SECRET_KEY` | When set, every dashboard route requires `X-API-Key` |
+| `API_SECRET_KEY` | Required for dashboard access; blank keys refuse access by default |
+| `ALLOW_UNAUTHENTICATED_DEVELOPMENT` | Default `false`; local opt-in only when `ENVIRONMENT=development` |
 | `CORS_ALLOW_ORIGINS` | Exact origins, comma-separated, never a wildcard |
 | `NIM_API_KEY` | Optional; without it, reasoning uses the deterministic fallback |
 | `RAZORPAY_WEBHOOK_SECRET` | Required for webhook ingestion; empty means refuse everything |
